@@ -1,9 +1,11 @@
 package flink.spring_service.api;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import flink.spring_service.model.ChartData;
+import flink.spring_service.model.User;
+import flink.spring_service.model.PieData;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +20,25 @@ import java.util.Random;
 @RestController
 public class ChartController {
 
+    @GetMapping("/api/users")
+    public List<User> getUsers() {
+        List<User> users = new ArrayList<>();
+        users.add(new User(1, "홍길동", "hong@test.com"));
+        users.add(new User(2, "김철수", "kim@test.com"));
+        return users;
+    }
+
+    @GetMapping("/api/week-data")
+    public Map<String, Object> getWeekData() {
+        Map<String, Object> response = new HashMap<>();
+        List<String> labels = Arrays.asList("월", "화", "수", "목", "금", "토", "일");
+        List<Integer> values = Arrays.asList(120, 200, 150, 80, 70, 110, 130);
+        
+        response.put("labels", labels);
+        response.put("values", values);
+        
+        return response;
+    }
     @GetMapping("/api/chart-data")
     public Map<String, Object> getChartData() {
         Map<String, Object> data = new HashMap<>();
@@ -29,32 +50,34 @@ public class ChartController {
         return data; // JSON 형태로 반환됩니다.
     }
 
-    @GetMapping("/api/sales-data")
-    public Map<String, Object> getSalesData() {
+    @GetMapping("/api/pie-data")
+    public List<PieData> getSalesData() {
+        // 실제 데이터베이스 조회 로직 필요
         List<String> categories = Arrays.asList("월", "화", "수", "목", "금", "토", "일");
-        List<Integer> sales = Arrays.asList(120, 200, 150, 80, 70, 110, 130);
+        List<PieData> response =  new ArrayList<>();
+        Random random = new Random();   
+        for (String category : categories) {
+            response.add(new PieData(category, random.nextFloat() * 100));
+        }
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("categories", categories);
-        data.put("yvalue", sales);
-
-        return data; // JSON 형태로 반환됩니다.
-    }    
+        return response;
+    }   
 
     @GetMapping("/api/xy-data")
-    public ResponseEntity<List<ChartData>> getItems(@RequestParam("chartIndex") String chartIndex) {
-        List<ChartData> dataList = new ArrayList<>();
-       	Random random = new Random();
+    public List<Map<String, Object>> getItems(@RequestParam("chartIndex") String chartIndex) {
+        List<Map<String, Object>> dataList = new ArrayList<>();
+        List<String> legendNames = new ArrayList<>();
+        Random random = new Random();
 		String[] paramValues = {"A", "B", "C", "D", "E"};
 		for (String paramValue : paramValues) {
+            String name = String.format("C-%s series %s", chartIndex, paramValue);
+            List<List<Float>> dataPoints = new ArrayList<>();
 			for (int i = 0; i < 10; i++) {
-				String name = String.format("C-%s series %s", chartIndex, paramValue);
-				float xvalue = random.nextFloat() * 100;
-				float yvalue = random.nextFloat() * 100;
-				dataList.add(new ChartData(name, xvalue, yvalue));
-			}	
+				dataPoints.add(Arrays.asList(random.nextFloat() * 100, random.nextFloat() * 100));
+			}
+            legendNames.add(name);
+            dataList.add(Map.of("name", name, "data", dataPoints));
 		}
-		ResponseEntity<List<ChartData>> response = ResponseEntity.ok(dataList);
-        return response;
+        return dataList;
     }    
 }

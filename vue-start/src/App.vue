@@ -2,12 +2,12 @@
   <div>
     <h1>우리 회사 매출 현황</h1>
     <!-- BarChart 컴포넌트 사용 및 데이터 바인딩 -->
-    <DrawChart :chartData="salesData" :chartOptions="salesOptions" />
+    <DrawChart :chartData="salesData" :chartOptions="salesOptions" chartType="bar" />
   </div>
 </template>
 
 <script>
-import DrawChart from './components/chartjs/Draw-Chartjs.vue'; // BarChart 컴포넌트 import
+import DrawChart from './components/charts/DrawChartjs.vue'; // BarChart 컴포넌트 import
 
 export default {
   name: 'App',
